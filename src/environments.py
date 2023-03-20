@@ -4,16 +4,21 @@ import numpy as np
 
 class Env:
     def __init__(self, 
-                 n_agents=1, 
-                 n_options=2, 
-                 payoff_structure=(0.6, 0.59, 0)
+                 n_agents : int = 1, 
+                 n_options: int = 2, 
+                 payoff_structure: tuple[float, ...] = (0.6, 0.59, 0)
                  ):
-        self.n_agents = n_agents
+        self.n_agents = n_agents # TODO
         self.n_options = n_options
         # payoffs (rewards)
         self.payoff_better, self.payoff_worse, \
             self.payoff_sd = payoff_structure
-        self.best_action = np.random.randint(0, n_options) # best action drawn at random
+        
+        # best action drawn at random at init
+        self.best_action = np.random.randint(0, n_options)
+
+        # record history of actions performed on the environment
+        self.history = [] #dict with id as kz?
 
     def return_rewards(self, choice_idx: int) -> tuple[float, bool]:
         assert isinstance(choice_idx, int) and (choice_idx < self.n_options)
