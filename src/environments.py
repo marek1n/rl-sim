@@ -28,6 +28,11 @@ class Env:
 
         return (better, True) if (choice_idx == self.best_action) else (worse, False)
     
+    def switch(self):
+         self.best_action = np.random.choice(
+             np.setdiff1d(np.arange(self.n_options), self.best_action)
+             )
+    
     def __repr__(self):
         return f"""MAB env\nAgents: {self.n_agents}\nSize of action space: {self.n_options}
 Best idx: {self.best_action}

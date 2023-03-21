@@ -43,8 +43,7 @@ class AgentEWA(AgentBase):
         ind_choice_probabilities = np.array(self.ind_choice_f(self.Q_vals[-1]))
 
         if obs:
-            # assign social probabilities (needs nr of times option selected last round)
-            # n times action selected
+            # assign social probabilities
             counts_dict = Counter(obs.values())
             
             counts = np.array([counts_dict[i] if i in counts_dict.keys() 
@@ -73,9 +72,9 @@ class AgentEWA(AgentBase):
             if idx == choice:
                 last_q[idx] = (1 - self.phi) * last_q[choice] + self.phi * reward 
             else:
-                #NOTE this makes the agent perform **really** crap
-                # last_q[idx] = (1 - self.phi) * last_q[choice] + self.phi * 0
-                pass
+                # NOTE can be commented out to change Q-value updating
+                last_q[idx] = (1 - self.phi) * last_q[choice] + self.phi * 0
+                # pass
 
         self.Q_vals.append(last_q)
     
@@ -83,9 +82,9 @@ class AgentEWA(AgentBase):
 class AgentQ(AgentBase):
     def __init__(self, id, epsilon=0.5):
         super().__init__(id)
-        self.epsilon = epsilon
+        self.epsilon = epsilon # TODO anneal?
 
-    def choose_action(self) -> int:
+    def choose_action(self, **kwargs) -> int:
         q_vals_current = self.Q_vals[-1]
         p = np.random.uniform()
         # choose random with p=epsilon otherwise greedy
@@ -94,9 +93,10 @@ class AgentQ(AgentBase):
         else:
             choice = np.argmax(q_vals_current)
 
+        choice = int(choice) # convert from np.int
         self.choices.append(choice)
         
-        return int(choice)
+        return choice
     
     def update_Qvals(self, choice, reward):
         last_q = self.Q_vals[-1].copy() # get most recent Qvals
