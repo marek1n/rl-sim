@@ -14,7 +14,7 @@ class Env:
         self.payoff_better, self.payoff_worse, \
             self.payoff_sd = payoff_structure
         
-        # best action drawn at random at init
+        # best action drawn at random at init TODO: hardcode options?
         self.best_action = np.random.randint(0, n_options)
 
         # record history of actions performed on the environment
@@ -32,6 +32,9 @@ class Env:
          self.best_action = np.random.choice(
              np.setdiff1d(np.arange(self.n_options), self.best_action)
              )
+         
+    def reset(self):
+        self.history = []
     
     def __repr__(self):
         return f"""MAB env\nAgents: {self.n_agents}\nSize of action space: {self.n_options}

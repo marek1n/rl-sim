@@ -91,6 +91,7 @@ class AgentQ(AgentBase):
         if p < self.epsilon:
             choice = np.random.randint(0, self.n_actions)
         else:
+            # TODO add social context
             choice = np.argmax(q_vals_current)
 
         choice = int(choice) # convert from np.int
