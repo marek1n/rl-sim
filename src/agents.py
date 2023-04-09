@@ -8,12 +8,14 @@ class AgentBase:
     def __init__(self, 
                  id: Any, # needs hashable type
                  n_options: int = 2, 
-                 q_init: float = 0.1
+                 q_init: float = 0.1,
+                 is_social = False
                  ):
         # properties
         self.id = id
         self.n_actions = n_options
         self.Q_init = q_init
+        self.social = is_social
 
         # arrays to hold behavioural history
         self.Q_vals = [np.array([q_init for i in range(n_options)])]
@@ -35,20 +37,20 @@ class AgentBase:
     
 
 class AgentEWA(AgentBase):
-    def __init__(self, id, phi=0.1, lam=2, sigma=0.5, theta=2):
-        super().__init__(id)
+    def __init__(self, id, phi=0.1, lam=2, sigma=0.5, theta=2, **kwargs):
+        super().__init__(id, **kwargs)
         self.phi = phi
         self.lam = lam
         self.theta = theta
         self.ind_choice_f = lambda x: np.exp(x)/sum(np.exp(x))
         self.social_choice_f = lambda p_ind, p_soc: (1 - sigma)*p_ind + sigma*p_soc
 
-    def choose_action(self, obs=None) -> int:
+    def choose_action(self, context=None) -> int:
         ind_choice_probabilities = np.array(self.ind_choice_f(self.Q_vals[-1]))
 
-        if obs:
+        if context and self.social:
             # assign social probabilities
-            counts_dict = Counter(obs.values())
+            counts_dict = Counter(context.values())
             
             counts = np.array([counts_dict[i] if i in counts_dict.keys() 
                                         else 0 for i in range(self.n_actions)])
@@ -84,11 +86,11 @@ class AgentEWA(AgentBase):
     
 
 class AgentQ(AgentBase):
-    def __init__(self, id, epsilon=0.5):
-        super().__init__(id)
+    def __init__(self, id, epsilon=0.5, **kwargs):
+        super().__init__(id, **kwargs)
         self.epsilon = epsilon # TODO anneal?
 
-    def choose_action(self, **kwargs) -> int:
+    def choose_action(self, context=None) -> int:
         q_vals_current = self.Q_vals[-1]
         p = np.random.uniform()
         # choose random with p=epsilon otherwise greedy
@@ -96,7 +98,13 @@ class AgentQ(AgentBase):
             choice = np.random.randint(0, self.n_actions)
         else:
             # TODO add social context? https://renan-cunha.github.io/categories/contextual-bandits/
-            choice = np.argmax(q_vals_current)
+            if context and self.social:
+                # choose most frequently selected one?
+                counts_dict = Counter(context.values())
+                counts = np.array([counts_dict[i] if i in counts_dict.keys() else 0 for i in range(self.n_actions)])
+                choice = np.argmax(counts)
+            else:
+                choice = np.argmax(q_vals_current)
 
         choice = int(choice) # convert from np.int
         self.choices.append(choice)
