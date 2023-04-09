@@ -12,7 +12,8 @@ class AgentBase:
                  ):
         # properties
         self.id = id
-        self.n_actions = n_options # TODO hmm
+        self.n_actions = n_options
+        self.Q_init = q_init
 
         # arrays to hold behavioural history
         self.Q_vals = [np.array([q_init for i in range(n_options)])]
@@ -26,6 +27,9 @@ class AgentBase:
                      ):
         self.payoffs.append(reward)
         self.correct.append(correct)
+
+    def reset_Qvals(self):
+        self.Q_vals = [np.array([self.Q_init for i in range(self.n_actions)])]
 
     def __repr__(self): return f"Agent {self.id}"
     
@@ -91,7 +95,7 @@ class AgentQ(AgentBase):
         if p < self.epsilon:
             choice = np.random.randint(0, self.n_actions)
         else:
-            # TODO add social context
+            # TODO add social context? https://renan-cunha.github.io/categories/contextual-bandits/
             choice = np.argmax(q_vals_current)
 
         choice = int(choice) # convert from np.int

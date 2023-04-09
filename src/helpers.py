@@ -34,3 +34,14 @@ def show_payoff_structure(payoff_structure: tuple[float, float, float]):
 
     # Show the plot
     plt.show()
+
+
+def plot_returns(payoffs: np.ndarray):
+    mean = np.mean(payoffs, axis=0)
+    std_err = np.std(payoffs, axis=0) / np.sqrt(payoffs.shape[0])
+    fig, ax = plt.subplots()
+    ax.plot(mean)
+
+    ax.fill_between(range(mean.shape[0]), mean + std_err, mean - std_err, alpha=0.8, color='xkcd:light blue')
+
+    plt.ylim(0,1)
