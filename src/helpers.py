@@ -145,3 +145,57 @@ class MDPGenerativeModel:
         D[1] = D_choice
 
         return D
+    
+
+    def run_active_inference_with_learning(self, my_agent, my_env, T = 5):
+        """
+        Function that wraps together and runs a full active inference loop using the pymdp.agent.Agent class functionality.
+        Also includes learning and outputs the history of the agent's beliefs about the reward
+        """
+
+        """ Initialize the first observation """
+        obs_label = ["Null", "Start"]  # agent observes itself seeing a `Null` hint, getting a `Null` reward, and seeing itself in the `Start` location
+        obs = [self.reward_obs_names.index(obs_label[0]), self.choice_obs_names.index(obs_label[1])]
+
+        belief_hist = np.zeros((2, T))
+        context_hist = np.zeros(T)
+
+        first_choice = self.choice_obs_names.index(obs_label[1])
+        choice_hist = np.zeros((3,T+1))
+        choice_hist[first_choice,0] = 1.0
+
+        dim_qA = (T,) + my_agent.A[my_agent.modalities_to_learn[0]].shape
+
+        qA_hist = np.zeros(dim_qA)
+
+        for t in range(T):
+            context_hist[t] = my_env.context_names.index(my_env.context)
+            qs = my_agent.infer_states(obs)
+            belief_hist[:,t] = qs[0].copy()
+
+            q_pi, efe = my_agent.infer_policies()
+            chosen_action_id = my_agent.sample_action()
+            # movement_id = int(chosen_action_id[1])
+
+            Q_u = softmax(-efe) # e.g. -G (expected FE)
+            movement_id = utils.sample(Q_u[1:]) + 1
+                
+            choice_hist[movement_id,t+1]= 1.0
+
+            qA_t = my_agent.update_A(obs)
+            qA_hist[t] = qA_t[my_agent.modalities_to_learn[0]]
+
+            choice_action = self.choice_action_names[movement_id]
+            obs_label = my_env.step(choice_action)
+
+            # print(f'Observation : Hint: {obs_label[0]}, Reward: {obs_label[1]}, Choice Sense: {obs_label[2]}')
+            obs = [self.reward_obs_names.index(obs_label[0]), self.choice_obs_names.index(obs_label[1])]
+
+        return choice_hist, belief_hist, qA_hist, context_hist
+
+
+
+def parameterize_pA(A_base, scale=1e-16, prior_count=10e5):
+  pA = utils.dirichlet_like(A_base, scale = scale)
+  pA[1][0,:,:] *= prior_count # make the null observation contingencies 'un-learnable'
+  return pA
