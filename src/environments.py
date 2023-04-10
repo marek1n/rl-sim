@@ -1,5 +1,5 @@
 import numpy as np
-
+from pymdp import utils
 
 
 class Env:
@@ -40,3 +40,55 @@ class Env:
         return f"""MAB env\nAgents: {self.n_agents}\nSize of action space: {self.n_options}
 Best idx: {self.best_action}
 Rewards (high, low, SD): {self.payoff_better, self.payoff_worse, self.payoff_sd}"""
+
+
+
+class Env_ActInf:
+
+  def __init__(self, context = None, p_reward = 0.8, p_change = 0.3):
+
+    self.context_names = ["Left-Better", "Right-Better"]
+
+    if context == None:
+      self.context = self.context_names[utils.sample(np.array([0.5, 0.5]))] # randomly sample which bandit arm is better (Left or Right)
+    else:
+      self.context = self.context_names[context]
+
+    self.p_reward = p_reward
+
+    self.reward_obs_names = ['Null', 'Loss', 'Reward']
+
+    self.p_change=p_change
+
+  def step(self, action):
+
+    # change the context stochastically at each timestep
+    change_or_stay = utils.sample(np.array([self.p_change, 1. - self.p_change])) # TODO: change based on outermost loop in final
+    if change_or_stay == 0:
+      if self.context == 'Left-Better':
+        self.context = 'Right-Better'
+      elif self.context == 'Right-Better':
+        self.context = 'Left-Better'
+
+    if action == "Move-start":
+      observed_reward = "Null"
+      observed_choice = "Start"
+
+    elif action == "Play-left":
+      observed_choice = "Left Arm"
+      if self.context == "Left-Better":
+        observed_reward = self.reward_obs_names[utils.sample(np.array([0.0, 1.0 - self.p_reward, self.p_reward]))]
+      elif self.context == "Right-Better":
+        observed_reward = self.reward_obs_names[utils.sample(np.array([0.0, self.p_reward, 1.0 - self.p_reward]))]
+
+    elif action == "Play-right":
+      observed_choice = "Right Arm"
+      if self.context == "Right-Better":
+        observed_reward = self.reward_obs_names[utils.sample(np.array([0.0, 1.0 - self.p_reward, self.p_reward]))]
+      elif self.context == "Left-Better":
+        observed_reward = self.reward_obs_names[utils.sample(np.array([0.0, self.p_reward, 1.0 - self.p_reward]))]
+    
+    obs = [observed_reward, observed_choice]
+
+    return obs
+  
