@@ -147,7 +147,7 @@ class MDPGenerativeModel:
         return D
     
 
-    def run_active_inference_with_learning(self, my_agent, my_env, T=5, t_change=[]):
+    def run_active_inference_with_learning(self, my_agent, my_env, T=5, t_change=[], verbose=False):
         """
         Function that wraps together and runs a full active inference loop using the pymdp.agent.Agent class functionality.
         Also includes learning and outputs the history of the agent's beliefs about the reward
@@ -173,6 +173,10 @@ class MDPGenerativeModel:
             qs = my_agent.infer_states(obs)
             belief_hist[:,t] = qs[0].copy()
 
+            if verbose:
+                utils.plot_beliefs(qs[0], title = f"Beliefs about the context at time {t}")
+                
+
             q_pi, efe = my_agent.infer_policies()
             chosen_action_id = my_agent.sample_action()
             # movement_id = int(chosen_action_id[1])
@@ -191,7 +195,7 @@ class MDPGenerativeModel:
 
             obs_label = my_env.step(choice_action, change=round_change)
 
-            # print(f'Observation : Hint: {obs_label[0]}, Reward: {obs_label[1]}, Choice Sense: {obs_label[2]}')
+            print(f'Observation : Reward: {obs_label[0]}, Choice Sense: {obs_label[1]}')
             obs = [self.reward_obs_names.index(obs_label[0]), self.choice_obs_names.index(obs_label[1])]
 
         return choice_hist, belief_hist, qA_hist, context_hist

@@ -14,8 +14,9 @@ class Env:
         self.payoff_better, self.payoff_worse, \
             self.payoff_sd = payoff_structure
         
-        # best action drawn at random at init TODO: hardcode options?
-        self.best_action = np.random.randint(0, n_options)
+        # best action either drawn at random at init, or hardcoded to 0
+        # self.best_action = np.random.randint(0, n_options)
+        self.best_action = 0
 
         # record history of actions performed on the environment
         self.history = [] #dict with id as kz?
