@@ -196,6 +196,30 @@ class MDPGenerativeModel:
 
 
 def parameterize_pA(A_base, scale=1e-16, prior_count=10e5):
-  pA = utils.dirichlet_like(A_base, scale = scale)
-  pA[1][0,:,:] *= prior_count # make the null observation contingencies 'un-learnable'
-  return pA
+    pA = utils.dirichlet_like(A_base, scale = scale)
+    pA[1][0,:,:] *= prior_count # make the null observation contingencies 'un-learnable'
+    return pA
+
+
+def plot_choices_beliefs(choice_hist, belief_hist, context_hist, choice_action_names=None, pad_val=5.0):
+    """ Helper function for plotting outcome of simulation.
+    first subplot shows the agent's choices (actions) over time , second subplot shows the agents beliefs about the game-context (which arm is better) over time
+    """
+
+    T = choice_hist.shape[1]
+    fig, axes = plt.subplots(nrows = 2, ncols = 1, figsize = (14,11))
+    axes[0].imshow(choice_hist[:,:-1], cmap = 'gray') # only plot up until the second to last timestep, since we don't update beliefs after the last choice
+    axes[0].set_xlabel('Timesteps')
+    axes[0].set_yticks(ticks = range(3))
+    axes[0].set_yticklabels(labels = choice_action_names)
+    axes[0].set_title('Choices over time')
+
+    axes[1].imshow(belief_hist, cmap = 'gray')
+    axes[1].set_xlabel('Timesteps')
+    axes[1].set_yticks(ticks = range(2))
+    axes[1].set_yticklabels(labels = ['Left-Better', 'Right-Better'])
+    axes[1].set_title('Beliefs over time')
+    axes[1].scatter(np.arange(T-1), context_hist, c = 'r', s = 50)
+
+    fig.tight_layout(pad=pad_val)
+    plt.show()
