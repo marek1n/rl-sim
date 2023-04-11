@@ -31,7 +31,7 @@ class AgentBase:
         self.correct.append(correct)
 
     def reset_Qvals(self):
-        self.Q_vals = [np.array([self.Q_init for i in range(self.n_actions)])]
+        self.Q_vals[-1] = np.array([self.Q_init for i in range(self.n_actions)])
 
     def __repr__(self): return f"Agent {self.id}"
     

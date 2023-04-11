@@ -177,8 +177,8 @@ class MDPGenerativeModel:
             chosen_action_id = my_agent.sample_action()
             # movement_id = int(chosen_action_id[1])
 
-            Q_u = softmax(-efe) # e.g. -G (expected FE)
-            movement_id = utils.sample(Q_u[1:]) + 1
+            Q_u = softmax(-efe)
+            movement_id = utils.sample(Q_u[1:]) + 1 # ignore move_start and correct for index
                 
             choice_hist[movement_id,t+1]= 1.0
 
