@@ -99,7 +99,7 @@ class AgentQ(AgentBase):
         else:
             # TODO add social context? https://renan-cunha.github.io/categories/contextual-bandits/
             if context and self.social:
-                # choose most frequently selected one?
+                # choose most frequently selected one
                 counts_dict = Counter(context.values())
                 counts = np.array([counts_dict[i] if i in counts_dict.keys() else 0 for i in range(self.n_actions)])
                 choice = np.argmax(counts)

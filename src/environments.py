@@ -58,13 +58,13 @@ class Env_ActInf:
 
     self.reward_obs_names = ['Null', 'Loss', 'Reward']
 
-    self.p_change=p_change
+    self.p_change=p_change # does nothing now
 
-  def step(self, action):
+  def step(self, action, change=False):
 
     # change the context stochastically at each timestep
-    change_or_stay = utils.sample(np.array([self.p_change, 1. - self.p_change])) # TODO: change based on outermost loop in final
-    if change_or_stay == 0:
+    # change_or_stay = utils.sample(np.array([self.p_change, 1. - self.p_change]))
+    if change:
       if self.context == 'Left-Better':
         self.context = 'Right-Better'
       elif self.context == 'Right-Better':

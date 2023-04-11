@@ -1,0 +1,10 @@
+Dynamic-Social-Learning/
+github-archive/
+.DS_Store
+src/__pycache__/
+.ipynb_checkpoints
+.Rhistory
+Day3_ReinforcementLearningStan.r
+RL_social_multilevel.stan
+RL_social.stan
+RL.stan
