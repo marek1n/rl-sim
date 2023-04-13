@@ -194,8 +194,8 @@ class MDPGenerativeModel:
             round_change = True if t in t_change else False
 
             obs_label = my_env.step(choice_action, change=round_change)
-
-            print(f'Observation : Reward: {obs_label[0]}, Choice Sense: {obs_label[1]}')
+            if verbose:
+                print(f'Observation : Reward: {obs_label[0]}, Choice Sense: {obs_label[1]}')
             obs = [self.reward_obs_names.index(obs_label[0]), self.choice_obs_names.index(obs_label[1])]
 
         return choice_hist, belief_hist, qA_hist, context_hist
