@@ -46,7 +46,7 @@ def plot_returns(payoffs: np.ndarray):
 
     ax.fill_between(range(mean.shape[0]), mean + std_err, mean - std_err, alpha=0.8, color='xkcd:light blue')
 
-    plt.ylim(0,1)
+    plt.ylim(-5,5)
 
 
 class MDPGenerativeModel:
